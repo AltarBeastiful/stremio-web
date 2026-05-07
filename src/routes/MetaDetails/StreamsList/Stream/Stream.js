@@ -22,7 +22,9 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
 
     const preloadEntry = React.useMemo(() => {
         if (typeof infoHash !== 'string') return null;
-        return preloadedItems?.items?.[infoHash.toLowerCase()] ?? null;
+        const entry = preloadedItems?.items?.[infoHash.toLowerCase()] ?? null;
+        console.log('[Stream] infoHash:', infoHash, 'preloadEntry:', JSON.stringify(entry), 'allItems:', JSON.stringify(preloadedItems?.items ?? null));
+        return entry;
     }, [infoHash, preloadedItems]);
 
     const onPreload = React.useCallback((event) => {
