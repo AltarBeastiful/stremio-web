@@ -7,7 +7,7 @@ const { useCore } = require('stremio/core');
 const { Router } = require('stremio-router');
 const { Shell, Chromecast, DragAndDrop, KeyboardShortcuts, ServicesProvider, GamepadProvider } = require('stremio/services');
 const { NotFound } = require('stremio/routes');
-const { FileDropProvider, FullscreenProvider, PlatformProvider, ToastProvider, TooltipProvider, ShortcutsProvider, CONSTANTS, useShell, useBinaryState, useProfile, withCoreSuspender } = require('stremio/common');
+const { FileDropProvider, FullscreenProvider, PlatformProvider, ToastProvider, TooltipProvider, ShortcutsProvider, CONSTANTS, useShell, useBinaryState, useProfile, usePreloadPolling, withCoreSuspender } = require('stremio/common');
 const ServicesToaster = require('./ServicesToaster');
 const DeepLinkHandler = require('./DeepLinkHandler');
 const SearchParamsHandler = require('./SearchParamsHandler');
@@ -25,6 +25,7 @@ const App = () => {
     const profile = useProfile();
     const { i18n } = useTranslation();
     const shell = useShell();
+    usePreloadPolling();
     const [gamepadSupportEnabled, setGamepadSupportEnabled] = React.useState(false);
     const onPathNotMatch = React.useCallback(() => {
         return NotFound;

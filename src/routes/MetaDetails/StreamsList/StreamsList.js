@@ -182,6 +182,10 @@ const StreamsList = ({ className, video, type, onEpisodeSearch, ...props }) => {
                                             thumbnail={stream.thumbnail}
                                             progress={stream.progress}
                                             deepLinks={stream.deepLinks}
+                                            infoHash={stream.infoHash}
+                                            fileIdx={stream.fileIdx}
+                                            title={stream.name ?? stream.description}
+                                            imdbId={video?.id}
                                             onClick={stream.onClick}
                                         />
                                     ))}

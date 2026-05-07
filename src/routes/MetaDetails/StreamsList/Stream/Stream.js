@@ -6,18 +6,55 @@ const classnames = require('classnames');
 const { default: Icon } = require('@stremio/stremio-icons/react');
 const { t } = require('i18next');
 const { useCore } = require('stremio/core');
-const { useProfile, usePlatform, useToast, useBinaryState } = require('stremio/common');
+const { useProfile, usePlatform, useToast, useBinaryState, usePreloadedItems } = require('stremio/common');
 const { Button, Image, Popup } = require('stremio/components');
 const { useRouteFocused } = require('stremio-router');
 const StreamPlaceholder = require('./StreamPlaceholder');
 const styles = require('./styles');
 
-const Stream = ({ className, videoId, videoReleased, addonName, name, description, thumbnail, progress, deepLinks, ...props }) => {
+const Stream = ({ className, videoId, videoReleased, addonName, name, description, thumbnail, progress, deepLinks, infoHash, fileIdx, title, imdbId, ...props }) => {
     const profile = useProfile();
     const toast = useToast();
     const platform = usePlatform();
     const core = useCore();
     const routeFocused = useRouteFocused();
+    const preloadedItems = usePreloadedItems();
+
+    const preloadEntry = React.useMemo(() => {
+        if (typeof infoHash !== 'string') return null;
+        return preloadedItems?.items?.[infoHash.toLowerCase()] ?? null;
+    }, [infoHash, preloadedItems]);
+
+    const onPreload = React.useCallback((event) => {
+        event.preventDefault();
+        event.nativeEvent.togglePopupPrevented = true;
+        if (typeof infoHash !== 'string') return;
+        core.transport.dispatch({
+            action: 'Player',
+            args: {
+                action: 'Preload',
+                args: {
+                    infoHash: infoHash.toLowerCase(),
+                    fileIdx: typeof fileIdx === 'number' ? fileIdx : 0,
+                    imdbId: imdbId ?? '',
+                    title: title ?? name ?? addonName ?? '',
+                }
+            }
+        });
+    }, [infoHash, fileIdx, imdbId, title, name, addonName]);
+
+    const onCancelPreload = React.useCallback((event) => {
+        event.preventDefault();
+        event.nativeEvent.togglePopupPrevented = true;
+        if (typeof infoHash !== 'string') return;
+        core.transport.dispatch({
+            action: 'Player',
+            args: {
+                action: 'CancelPreload',
+                args: { infoHash: infoHash.toLowerCase() }
+            }
+        });
+    }, [infoHash]);
 
     const [menuOpen, , closeMenu, toggleMenu] = useBinaryState(false);
 
@@ -228,11 +265,20 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                     }
                 </div>
                 <div className={styles['description-container']} title={description}>{description}</div>
+                {
+                    preloadEntry?.status?.status === 'Ready' ?
+                        <Icon className={styles['preload-ready-icon']} name={'checkmark'} title={'Preloaded'} />
+                        : preloadEntry?.status?.status === 'InProgress' ?
+                            <div className={styles['preload-progress-label']}>
+                                {Math.round((preloadEntry.status.progress ?? 0) * 100)}%
+                            </div>
+                            : null
+                }
                 <Icon className={styles['icon']} name={'play'} />
                 {children}
             </Button>
         );
-    }, [thumbnail, progress, addonName, name, description, href, target, download, onClick]);
+    }, [thumbnail, progress, addonName, name, description, href, target, download, onClick, preloadEntry]);
 
     const renderMenu = React.useMemo(() => function renderMenu() {
         return (
@@ -265,9 +311,28 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                             <div className={styles['context-menu-option-label']}>{t('CTX_COPY_VIDEO_DOWNLOAD_LINK')}</div>
                         </Button>
                 }
+                {
+                    typeof infoHash === 'string' && (!preloadEntry || preloadEntry.status?.status === 'Failed') ?
+                        <Button className={styles['context-menu-option-container']} title={t('CTX_PRELOAD')} onClick={onPreload}>
+                            <Icon className={styles['menu-icon']} name={'download'} />
+                            <div className={styles['context-menu-option-label']}>{t('CTX_PRELOAD')}</div>
+                        </Button>
+                        : null
+                }
+                {
+                    preloadEntry && (preloadEntry.status?.status === 'Pending' || preloadEntry.status?.status === 'InProgress') ?
+                        <Button className={styles['context-menu-option-container']} title={t('CTX_CANCEL_PRELOAD')} onClick={onCancelPreload}>
+                            <Icon className={styles['menu-icon']} name={'close'} />
+                            <div className={styles['context-menu-option-label']}>
+                                {t('CTX_CANCEL_PRELOAD')}
+                                {preloadEntry.status?.status === 'InProgress' ? ` (${Math.round((preloadEntry.status.progress ?? 0) * 100)}%)` : ''}
+                            </div>
+                        </Button>
+                        : null
+                }
             </div>
         );
-    }, [copyStreamLink, onClick]);
+    }, [copyStreamLink, copyMagnetLink, copyDownloadLink, onClick, infoHash, fileIdx, preloadEntry, onPreload, onCancelPreload]);
 
     React.useEffect(() => {
         if (!routeFocused) {
@@ -300,6 +365,10 @@ Stream.propTypes = {
     description: PropTypes.string,
     thumbnail: PropTypes.string,
     progress: PropTypes.number,
+    infoHash: PropTypes.string,
+    fileIdx: PropTypes.number,
+    title: PropTypes.string,
+    imdbId: PropTypes.string,
     deepLinks: PropTypes.shape({
         player: PropTypes.string,
         externalPlayer: PropTypes.shape({

@@ -20,6 +20,8 @@ const useLiveRef = require('./useLiveRef');
 const useModelState = require('./useModelState');
 const useNotifications = require('./useNotifications');
 const useOnScrollToBottom = require('./useOnScrollToBottom');
+const usePreloadedItems = require('./usePreloadedItems');
+const usePreloadPolling = require('./usePreloadPolling');
 const useProfile = require('./useProfile');
 const { default: useSettings } = require('./useSettings');
 const { default: useShell } = require('./useShell');
@@ -60,6 +62,8 @@ module.exports = {
     useModelState,
     useNotifications,
     useOnScrollToBottom,
+    usePreloadedItems,
+    usePreloadPolling,
     useProfile,
     useSettings,
     useShell,

@@ -34,6 +34,12 @@ i18n
         }
     });
 
+// Keys not yet present in the stremio-translations package.
+i18n.addResources('en-US', 'translation', {
+    'CTX_PRELOAD': 'Preload',
+    'CTX_CANCEL_PRELOAD': 'Cancel preload',
+});
+
 const appInfo = {
     appVersion: process.env.VERSION,
     shellVersion: null
