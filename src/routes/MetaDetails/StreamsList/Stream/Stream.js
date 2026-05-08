@@ -277,6 +277,10 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
     const renderLabel = React.useMemo(() => function renderLabel({ className, children, ...props }) {
         const preloadStatus = preloadEntry?.status?.status ?? null;
         const preloadPct = Math.round((preloadEntry?.status?.progress ?? 0) * 100);
+        const preloadSpeed = preloadEntry?.speedBps ?? 0;
+        const speedLabel = preloadSpeed > 0
+            ? ` · ${(preloadSpeed / 1_000_000).toFixed(1)} MB/s`
+            : '';
         return (
             <Button className={classnames(className, styles['stream-container'])} title={addonName} href={href} target={target} download={download} onClick={onClick} {...props}>
                 <div className={styles['info-container']}>
@@ -318,7 +322,7 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                             <div className={styles['preload-bar-container']}>
                                 <div className={styles['preload-bar']} style={{ width: `${preloadPct}%` }} />
                                 <div className={styles['preload-bar-background']} />
-                                <span className={styles['preload-bar-label']}>{preloadPct}%</span>
+                                <span className={styles['preload-bar-label']}>{preloadPct}%{speedLabel}</span>
                             </div>
                             : preloadStatus === 'pending' ?
                                 <div className={styles['preload-bar-container']}>
