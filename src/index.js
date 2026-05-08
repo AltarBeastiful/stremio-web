@@ -41,6 +41,7 @@ i18n.addResources('en-US', 'translation', {
     'CTX_DELETE_PRELOAD': 'Delete preloaded file',
     'PRELOAD_PENDING': 'Queued…',
     'PRELOAD_FAILED': 'Preload failed',
+    'PRELOAD_DISK_LOW': 'Low disk space — less than 2 GB available. Preload may fail.',
 });
 
 const appInfo = {

@@ -21,6 +21,7 @@ const useModelState = require('./useModelState');
 const useNotifications = require('./useNotifications');
 const useOnScrollToBottom = require('./useOnScrollToBottom');
 const usePreloadedItems = require('./usePreloadedItems');
+const usePreloadBadge = require('./usePreloadBadge');
 const usePreloadPolling = require('./usePreloadPolling');
 const useProfile = require('./useProfile');
 const { default: useSettings } = require('./useSettings');
@@ -63,6 +64,7 @@ module.exports = {
     useNotifications,
     useOnScrollToBottom,
     usePreloadedItems,
+    usePreloadBadge,
     usePreloadPolling,
     useProfile,
     useSettings,

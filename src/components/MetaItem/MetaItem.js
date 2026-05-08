@@ -10,12 +10,14 @@ const { default: Button } = require('stremio/components/Button');
 const { default: Image } = require('stremio/components/Image');
 const Multiselect = require('stremio/components/Multiselect');
 const useBinaryState = require('stremio/common/useBinaryState');
+const usePreloadBadge = require('stremio/common/usePreloadBadge');
 const { ICON_FOR_TYPE } = require('stremio/common/CONSTANTS');
 const styles = require('./styles');
 
-const MetaItem = React.memo(({ className, type, name, poster, posterShape, posterChangeCursor, progress, newVideos, options, deepLinks, dataset, optionOnSelect, onDismissClick, onPlayClick, watched, ...props }) => {
+const MetaItem = React.memo(({ className, type, name, id, poster, posterShape, posterChangeCursor, progress, newVideos, options, deepLinks, dataset, optionOnSelect, onDismissClick, onPlayClick, watched, ...props }) => {
     const { t } = useTranslation();
     const [menuOpen, onMenuOpen, onMenuClose] = useBinaryState(false);
+    const preloadBadge = usePreloadBadge(id);
     const href = React.useMemo(() => {
         return deepLinks ?
             typeof deepLinks.metaDetailsStreams === 'string' ?
@@ -109,6 +111,19 @@ const MetaItem = React.memo(({ className, type, name, poster, posterShape, poste
                         null
                 }
                 {
+                    preloadBadge?.status === 'ready' ?
+                        <div className={styles['preload-badge-layer']} title={'Preloaded'}>
+                            <Icon className={styles['preload-badge-icon']} name={'checkmark'} />
+                        </div>
+                        : preloadBadge?.status === 'inProgress' ?
+                            <div className={styles['preload-badge-layer']} title={`Preloading: ${Math.round((preloadBadge.progress ?? 0) * 100)}%`}>
+                                <div className={styles['preload-badge-label']}>
+                                    {Math.round((preloadBadge.progress ?? 0) * 100)}%
+                                </div>
+                            </div>
+                            : null
+                }
+                {
                     newVideos > 0 ?
                         <div className={styles['new-videos']}>
                             <div className={styles['layer']} />
@@ -158,6 +173,7 @@ MetaItem.displayName = 'MetaItem';
 MetaItem.propTypes = {
     className: PropTypes.string,
     type: PropTypes.string,
+    id: PropTypes.string,
     name: PropTypes.string,
     poster: PropTypes.string,
     posterShape: PropTypes.oneOf(['poster', 'landscape', 'square']),

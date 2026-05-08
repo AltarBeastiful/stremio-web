@@ -29,19 +29,45 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
         event.preventDefault();
         event.nativeEvent.togglePopupPrevented = true;
         if (typeof infoHash !== 'string') return;
-        core.transport.dispatch({
-            action: 'Player',
-            args: {
-                action: 'Preload',
+
+        const dispatchPreload = () => {
+            core.transport.dispatch({
+                action: 'Player',
                 args: {
-                    infoHash: infoHash.toLowerCase(),
-                    fileIdx: typeof fileIdx === 'number' ? fileIdx : 0,
-                    imdbId: imdbId ?? '',
-                    title: title ?? name ?? addonName ?? '',
+                    action: 'Preload',
+                    args: {
+                        infoHash: infoHash.toLowerCase(),
+                        fileIdx: typeof fileIdx === 'number' ? fileIdx : 0,
+                        imdbId: imdbId ?? '',
+                        title: title ?? name ?? addonName ?? '',
+                    }
                 }
-            }
-        });
-    }, [infoHash, fileIdx, imdbId, title, name, addonName]);
+            });
+        };
+
+        // Preflight: check available disk space before queuing the download.
+        // We show a warning if available space < 2 GB, but still proceed.
+        const serverUrl = profile.settings.streamingServerUrl;
+        if (typeof serverUrl === 'string' && serverUrl.length > 0) {
+            const diskSpaceUrl = serverUrl.replace(/\/$/, '') + '/preload/disk-space';
+            fetch(diskSpaceUrl)
+                .then((r) => r.ok ? r.json() : null)
+                .then((data) => {
+                    const TWO_GB = 2 * 1024 * 1024 * 1024;
+                    if (data && typeof data.available === 'number' && data.available < TWO_GB) {
+                        toast.show({
+                            type: 'warning',
+                            title: t('PRELOAD_DISK_LOW'),
+                            timeout: 6000,
+                        });
+                    }
+                })
+                .catch(() => { /* ignore — server may not be running yet */ })
+                .finally(() => dispatchPreload());
+        } else {
+            dispatchPreload();
+        }
+    }, [infoHash, fileIdx, imdbId, title, name, addonName, profile.settings.streamingServerUrl]);
 
     const onCancelPreload = React.useCallback((event) => {
         event.preventDefault();
