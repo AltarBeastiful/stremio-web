@@ -275,6 +275,8 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
     ), []);
 
     const renderLabel = React.useMemo(() => function renderLabel({ className, children, ...props }) {
+        const preloadStatus = preloadEntry?.status?.status ?? null;
+        const preloadPct = Math.round((preloadEntry?.status?.progress ?? 0) * 100);
         return (
             <Button className={classnames(className, styles['stream-container'])} title={addonName} href={href} target={target} download={download} onClick={onClick} {...props}>
                 <div className={styles['info-container']}>
@@ -304,38 +306,67 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                     }
                 </div>
                 <div className={styles['description-container']} title={description}>{description}</div>
-                {/* Preload progress bar / done indicator */}
+                {/* Inline preload status bar (full-width row) */}
                 {
-                    preloadEntry?.status?.status === 'ready' ?
+                    preloadStatus === 'ready' ?
                         <div className={classnames(styles['preload-bar-container'], styles['preload-bar-ready'])}>
                             <div className={styles['preload-bar']} style={{ width: '100%' }} />
                             <div className={styles['preload-bar-background']} />
-                            <Icon className={styles['preload-done-icon']} name={'checkmark'} title={'Preloaded'} />
+                            <Icon className={styles['preload-done-icon']} name={'checkmark'} title={t('CTX_DELETE_PRELOAD')} />
                         </div>
-                        : preloadEntry?.status?.status === 'inProgress' ?
+                        : preloadStatus === 'inProgress' ?
                             <div className={styles['preload-bar-container']}>
-                                <div className={styles['preload-bar']} style={{ width: `${Math.round((preloadEntry.status.progress ?? 0) * 100)}%` }} />
+                                <div className={styles['preload-bar']} style={{ width: `${preloadPct}%` }} />
                                 <div className={styles['preload-bar-background']} />
-                                <span className={styles['preload-bar-label']}>{Math.round((preloadEntry.status.progress ?? 0) * 100)}%</span>
+                                <span className={styles['preload-bar-label']}>{preloadPct}%</span>
                             </div>
-                            : preloadEntry?.status?.status === 'pending' ?
+                            : preloadStatus === 'pending' ?
                                 <div className={styles['preload-bar-container']}>
                                     <div className={styles['preload-bar']} style={{ width: '0%' }} />
                                     <div className={styles['preload-bar-background']} />
                                     <span className={styles['preload-bar-label']}>{t('PRELOAD_PENDING')}</span>
                                 </div>
-                                : preloadEntry?.status?.status === 'failed' ?
+                                : preloadStatus === 'failed' ?
                                     <div className={classnames(styles['preload-bar-container'], styles['preload-bar-failed'])}>
                                         <div className={styles['preload-bar-background']} />
                                         <span className={styles['preload-bar-label']}>{t('PRELOAD_FAILED')}</span>
                                     </div>
                                     : null
                 }
+                {/* Inline preload action button (always visible for torrent streams) */}
+                {
+                    typeof infoHash === 'string' ?
+                        preloadStatus === 'ready' ?
+                            <Button
+                                className={classnames(styles['preload-btn'], styles['preload-btn-done'])}
+                                title={t('CTX_DELETE_PRELOAD')}
+                                onClick={onDeletePreload}
+                            >
+                                <Icon className={styles['preload-btn-icon']} name={'checkmark'} />
+                            </Button>
+                            : preloadStatus === 'inProgress' || preloadStatus === 'pending' ?
+                                <Button
+                                    className={classnames(styles['preload-btn'], styles['preload-btn-active'])}
+                                    title={t('CTX_CANCEL_PRELOAD')}
+                                    onClick={onCancelPreload}
+                                >
+                                    <Icon className={styles['preload-btn-icon']} name={'close'} />
+                                </Button>
+                                :
+                                <Button
+                                    className={classnames(styles['preload-btn'], styles['preload-btn-idle'])}
+                                    title={t('CTX_PRELOAD')}
+                                    onClick={onPreload}
+                                >
+                                    <Icon className={styles['preload-btn-icon']} name={'download'} />
+                                </Button>
+                        : null
+                }
                 <Icon className={styles['icon']} name={'play'} />
                 {children}
             </Button>
         );
-    }, [thumbnail, progress, addonName, name, description, href, target, download, onClick, preloadEntry]);
+    }, [thumbnail, progress, addonName, name, description, href, target, download, onClick, infoHash, preloadEntry, onPreload, onCancelPreload, onDeletePreload]);
 
     const renderMenu = React.useMemo(() => function renderMenu() {
         return (

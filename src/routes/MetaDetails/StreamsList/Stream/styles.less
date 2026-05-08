@@ -29,6 +29,67 @@
         .icon {
             opacity: 1;
         }
+        .preload-btn.preload-btn-idle {
+            opacity: 0.6;
+        }
+    }
+
+    // Inline preload action button (download / stop / done)
+    .preload-btn {
+        flex: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.6rem;
+        height: 2.6rem;
+        border-radius: 50%;
+        transition: opacity 0.15s ease, background-color 0.15s ease;
+
+        .preload-btn-icon {
+            flex: none;
+            width: 1.3rem;
+            height: 1.3rem;
+        }
+
+        // "Start preload" – only visible on hover (opacity managed above)
+        &.preload-btn-idle {
+            opacity: 0;
+            color: var(--primary-foreground-color);
+            background-color: transparent;
+
+            &:hover, &:focus {
+                opacity: 1;
+                background-color: var(--overlay-color);
+            }
+        }
+
+        // "Cancel" (pending / inProgress) – always visible, pulsing
+        &.preload-btn-active {
+            color: var(--primary-foreground-color);
+            background-color: var(--overlay-color);
+            animation: preload-pulse 1.6s ease-in-out infinite;
+
+            &:hover, &:focus {
+                background-color: rgba(232, 117, 117, 0.3);
+                color: #e87575;
+            }
+        }
+
+        // "Preloaded / Delete" – always visible, green tint
+        &.preload-btn-done {
+            color: rgba(120, 230, 120, 0.9);
+            background-color: rgba(120, 230, 120, 0.15);
+
+            &:hover, &:focus {
+                background-color: rgba(232, 117, 117, 0.3);
+                color: #e87575;
+            }
+        }
+    }
+
+    @keyframes preload-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.55; }
     }
 
     .info-container {
