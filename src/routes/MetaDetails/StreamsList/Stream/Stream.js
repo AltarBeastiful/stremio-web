@@ -324,11 +324,11 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                                 <div className={styles['preload-bar-background']} />
                                 <span className={styles['preload-bar-label']}>{preloadPct}%{speedLabel}</span>
                             </div>
-                            : preloadStatus === 'pending' ?
-                                <div className={styles['preload-bar-container']}>
+                            : (preloadStatus === 'pending' || preloadStatus === 'queued') ?
+                                <div className={classnames(styles['preload-bar-container'], preloadStatus === 'queued' ? styles['preload-bar-queued'] : null)}>
                                     <div className={styles['preload-bar']} style={{ width: '0%' }} />
                                     <div className={styles['preload-bar-background']} />
-                                    <span className={styles['preload-bar-label']}>{t('PRELOAD_PENDING')}</span>
+                                    <span className={styles['preload-bar-label']}>{t(preloadStatus === 'queued' ? 'PRELOAD_QUEUED' : 'PRELOAD_PENDING')}</span>
                                 </div>
                                 : preloadStatus === 'failed' ?
                                     <div className={classnames(styles['preload-bar-container'], styles['preload-bar-failed'])}>
@@ -348,9 +348,9 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                             >
                                 <Icon className={styles['preload-btn-icon']} name={'checkmark'} />
                             </Button>
-                            : preloadStatus === 'inProgress' || preloadStatus === 'pending' ?
+                            : (preloadStatus === 'inProgress' || preloadStatus === 'pending' || preloadStatus === 'queued') ?
                                 <Button
-                                    className={classnames(styles['preload-btn'], styles['preload-btn-active'])}
+                                    className={classnames(styles['preload-btn'], styles['preload-btn-active'], preloadStatus === 'queued' ? styles['preload-btn-queued'] : null)}
                                     title={t('CTX_CANCEL_PRELOAD')}
                                     onClick={onCancelPreload}
                                 >
@@ -412,12 +412,13 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                         : null
                 }
                 {
-                    preloadEntry && (preloadEntry.status?.status === 'pending' || preloadEntry.status?.status === 'inProgress') ?
+                    preloadEntry && (preloadEntry.status?.status === 'queued' || preloadEntry.status?.status === 'pending' || preloadEntry.status?.status === 'inProgress') ?
                         <Button className={styles['context-menu-option-container']} title={t('CTX_CANCEL_PRELOAD')} onClick={onCancelPreload}>
                             <Icon className={styles['menu-icon']} name={'close'} />
                             <div className={styles['context-menu-option-label']}>
                                 {t('CTX_CANCEL_PRELOAD')}
                                 {preloadEntry.status?.status === 'inProgress' ? ` (${Math.round((preloadEntry.status.progress ?? 0) * 100)}%)` : ''}
+                                {preloadEntry.status?.status === 'queued' ? ' (queued)' : ''}
                             </div>
                         </Button>
                         : null

@@ -16,7 +16,6 @@ const usePreloadBadge = (id) => {
 
     return React.useMemo(() => {
         if (!id || !preloadedItems?.items) return null;
-        // Linear scan — there will typically be ≤5 preload entries at any time.
         const entry = Object.values(preloadedItems.items).find((e) => e.imdbId === id);
         return entry?.status ?? null;
     }, [id, preloadedItems]);

@@ -115,7 +115,7 @@ const MetaItem = React.memo(({ className, type, name, id, poster, posterShape, p
                         <div className={styles['preload-badge-layer']} title={'Preloaded'}>
                             <Icon className={styles['preload-badge-icon']} name={'checkmark'} />
                         </div>
-                        : (preloadBadge?.status === 'inProgress' || preloadBadge?.status === 'pending') ?
+                        : (preloadBadge?.status === 'inProgress' || preloadBadge?.status === 'pending' || preloadBadge?.status === 'queued') ?
                             <div className={styles['preload-badge-layer']} title={`Preloading: ${Math.round((preloadBadge.progress ?? 0) * 100)}%`}>
                                 <svg className={styles['preload-badge-ring']} viewBox={'0 0 28 28'}>
                                     <circle cx={'14'} cy={'14'} r={'10'}

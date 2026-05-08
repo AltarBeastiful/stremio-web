@@ -69,9 +69,16 @@
             background-color: var(--overlay-color);
             animation: preload-pulse 1.6s ease-in-out infinite;
 
+            // "Queued" modifier: no animation, muted appearance
+            &.preload-btn-queued {
+                animation: none;
+                opacity: 0.5;
+            }
+
             &:hover, &:focus {
                 background-color: rgba(232, 117, 117, 0.3);
                 color: #e87575;
+                opacity: 1;
             }
         }
 
@@ -206,6 +213,16 @@
                 .preload-bar-label {
                     color: #e87575;
                     opacity: 1;
+                }
+            }
+
+            // Queued: dimmer label, barely-visible track
+            &.preload-bar-queued {
+                .preload-bar-label {
+                    opacity: 0.45;
+                }
+                .preload-bar-background {
+                    opacity: 0.07;
                 }
             }
         }
