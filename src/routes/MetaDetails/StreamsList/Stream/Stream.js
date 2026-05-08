@@ -22,9 +22,7 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
 
     const preloadEntry = React.useMemo(() => {
         if (typeof infoHash !== 'string') return null;
-        const entry = preloadedItems?.items?.[infoHash.toLowerCase()] ?? null;
-        console.log('[Stream] infoHash:', infoHash, 'preloadEntry:', JSON.stringify(entry), 'allItems:', JSON.stringify(preloadedItems?.items ?? null));
-        return entry;
+        return preloadedItems?.items?.[infoHash.toLowerCase()] ?? null;
     }, [infoHash, preloadedItems]);
 
     const onPreload = React.useCallback((event) => {
@@ -53,6 +51,19 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
             action: 'Player',
             args: {
                 action: 'CancelPreload',
+                args: { infoHash: infoHash.toLowerCase() }
+            }
+        });
+    }, [infoHash]);
+
+    const onDeletePreload = React.useCallback((event) => {
+        event.preventDefault();
+        event.nativeEvent.togglePopupPrevented = true;
+        if (typeof infoHash !== 'string') return;
+        core.transport.dispatch({
+            action: 'Player',
+            args: {
+                action: 'DeletePreload',
                 args: { infoHash: infoHash.toLowerCase() }
             }
         });
@@ -267,14 +278,32 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                     }
                 </div>
                 <div className={styles['description-container']} title={description}>{description}</div>
+                {/* Preload progress bar / done indicator */}
                 {
-                    preloadEntry?.status?.status === 'Ready' ?
-                        <Icon className={styles['preload-ready-icon']} name={'checkmark'} title={'Preloaded'} />
-                        : preloadEntry?.status?.status === 'InProgress' ?
-                            <div className={styles['preload-progress-label']}>
-                                {Math.round((preloadEntry.status.progress ?? 0) * 100)}%
+                    preloadEntry?.status?.status === 'ready' ?
+                        <div className={classnames(styles['preload-bar-container'], styles['preload-bar-ready'])}>
+                            <div className={styles['preload-bar']} style={{ width: '100%' }} />
+                            <div className={styles['preload-bar-background']} />
+                            <Icon className={styles['preload-done-icon']} name={'checkmark'} title={'Preloaded'} />
+                        </div>
+                        : preloadEntry?.status?.status === 'inProgress' ?
+                            <div className={styles['preload-bar-container']}>
+                                <div className={styles['preload-bar']} style={{ width: `${Math.round((preloadEntry.status.progress ?? 0) * 100)}%` }} />
+                                <div className={styles['preload-bar-background']} />
+                                <span className={styles['preload-bar-label']}>{Math.round((preloadEntry.status.progress ?? 0) * 100)}%</span>
                             </div>
-                            : null
+                            : preloadEntry?.status?.status === 'pending' ?
+                                <div className={styles['preload-bar-container']}>
+                                    <div className={styles['preload-bar']} style={{ width: '0%' }} />
+                                    <div className={styles['preload-bar-background']} />
+                                    <span className={styles['preload-bar-label']}>{t('PRELOAD_PENDING')}</span>
+                                </div>
+                                : preloadEntry?.status?.status === 'failed' ?
+                                    <div className={classnames(styles['preload-bar-container'], styles['preload-bar-failed'])}>
+                                        <div className={styles['preload-bar-background']} />
+                                        <span className={styles['preload-bar-label']}>{t('PRELOAD_FAILED')}</span>
+                                    </div>
+                                    : null
                 }
                 <Icon className={styles['icon']} name={'play'} />
                 {children}
@@ -314,7 +343,7 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                         </Button>
                 }
                 {
-                    typeof infoHash === 'string' && (!preloadEntry || preloadEntry.status?.status === 'Failed') ?
+                    typeof infoHash === 'string' && (!preloadEntry || preloadEntry.status?.status === 'failed') ?
                         <Button className={styles['context-menu-option-container']} title={t('CTX_PRELOAD')} onClick={onPreload}>
                             <Icon className={styles['menu-icon']} name={'download'} />
                             <div className={styles['context-menu-option-label']}>{t('CTX_PRELOAD')}</div>
@@ -322,19 +351,27 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                         : null
                 }
                 {
-                    preloadEntry && (preloadEntry.status?.status === 'Pending' || preloadEntry.status?.status === 'InProgress') ?
+                    preloadEntry && (preloadEntry.status?.status === 'pending' || preloadEntry.status?.status === 'inProgress') ?
                         <Button className={styles['context-menu-option-container']} title={t('CTX_CANCEL_PRELOAD')} onClick={onCancelPreload}>
                             <Icon className={styles['menu-icon']} name={'close'} />
                             <div className={styles['context-menu-option-label']}>
                                 {t('CTX_CANCEL_PRELOAD')}
-                                {preloadEntry.status?.status === 'InProgress' ? ` (${Math.round((preloadEntry.status.progress ?? 0) * 100)}%)` : ''}
+                                {preloadEntry.status?.status === 'inProgress' ? ` (${Math.round((preloadEntry.status.progress ?? 0) * 100)}%)` : ''}
                             </div>
+                        </Button>
+                        : null
+                }
+                {
+                    preloadEntry && (preloadEntry.status?.status === 'inProgress' || preloadEntry.status?.status === 'ready') ?
+                        <Button className={styles['context-menu-option-container']} title={t('CTX_DELETE_PRELOAD')} onClick={onDeletePreload}>
+                            <Icon className={styles['menu-icon']} name={'ic_remove'} />
+                            <div className={styles['context-menu-option-label']}>{t('CTX_DELETE_PRELOAD')}</div>
                         </Button>
                         : null
                 }
             </div>
         );
-    }, [copyStreamLink, copyMagnetLink, copyDownloadLink, onClick, infoHash, fileIdx, preloadEntry, onPreload, onCancelPreload]);
+    }, [copyStreamLink, copyMagnetLink, copyDownloadLink, onClick, infoHash, fileIdx, preloadEntry, onPreload, onCancelPreload, onDeletePreload]);
 
     React.useEffect(() => {
         if (!routeFocused) {

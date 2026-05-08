@@ -17,7 +17,7 @@ const usePreloadPolling = () => {
     const activeInfoHashes = React.useMemo(() => {
         if (!preloadedItems?.items) return [];
         return Object.values(preloadedItems.items)
-            .filter((e) => e.status?.status === 'Pending' || e.status?.status === 'InProgress')
+            .filter((e) => e.status?.status === 'pending' || e.status?.status === 'inProgress')
             .map((e) => e.infoHash);
     }, [preloadedItems]);
 
