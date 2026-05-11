@@ -98,6 +98,20 @@ const DownloadsContent = () => {
                             const progress = Math.round((entry.status?.progress ?? 0) * 100);
                             const speedBps = entry.speedBps ?? 0;
                             const isActive = status === 'inProgress' || status === 'pending' || status === 'queued';
+
+                            // entry.imdbId is video?.id from StreamsList, which for series is a compound
+                            // episode ID like "tt1234567:1:1". Split on ':' to get the meta-level IMDB id,
+                            // and keep the full compound id as videoId for the stream-level deep link.
+                            const rawId = entry.imdbId || '';
+                            const colonIdx = rawId.indexOf(':');
+                            const metaId = colonIdx !== -1 ? rawId.slice(0, colonIdx) : rawId;
+                            const videoId = colonIdx !== -1 ? rawId : null;
+                            const contentType = entry.contentType || 'movie';
+                            const playHref = metaId
+                                ? videoId
+                                    ? `#/metadetails/${contentType}/${metaId}/${videoId}`
+                                    : `#/metadetails/${contentType}/${metaId}`
+                                : null;
                             const isReady = status === 'ready';
                             const isFailed = status === 'failed';
                             return (
@@ -145,13 +159,13 @@ const DownloadsContent = () => {
                                                 <Icon className={styles['action-icon']} name={'close'} />
                                             </Button>
                                         )}
-                                        {(isActive || isReady) && entry.imdbId && (
+                                        {(isActive || isReady) && playHref && (
                                             <Button
                                                 className={classnames(styles['action-btn'], styles['action-watch'], {
                                                     [styles['action-watch-partial']]: isActive,
                                                 })}
                                                 title={t('CTX_PLAY')}
-                                                href={`#/metadetails/${entry.contentType || 'movie'}/${entry.imdbId}`}
+                                                href={playHref}
                                             >
                                                 <Icon className={styles['action-icon']} name={'play'} />
                                             </Button>
