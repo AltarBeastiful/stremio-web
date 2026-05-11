@@ -41,8 +41,13 @@ i18n.addResources('en-US', 'translation', {
     'CTX_DELETE_PRELOAD': 'Delete preloaded file',
     'PRELOAD_QUEUED': 'Queued…',
     'PRELOAD_PENDING': 'Queued…',
+    'PRELOAD_IN_PROGRESS': 'Downloading',
+    'PRELOAD_READY': 'Ready',
     'PRELOAD_FAILED': 'Preload failed',
     'PRELOAD_DISK_LOW': 'Low disk space — less than 2 GB available. Preload may fail.',
+    'DOWNLOADS': 'Downloads',
+    'DOWNLOADS_EMPTY': 'No downloads yet. Start a preload from a stream.',
+    'DOWNLOADS_DISK_AVAILABLE': '{{available}} free of {{total}}',
 });
 
 const appInfo = {
