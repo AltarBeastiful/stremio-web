@@ -145,9 +145,11 @@ const DownloadsContent = () => {
                                                 <Icon className={styles['action-icon']} name={'close'} />
                                             </Button>
                                         )}
-                                        {isReady && (
+                                        {(isActive || isReady) && entry.imdbId && (
                                             <Button
-                                                className={classnames(styles['action-btn'], styles['action-watch'])}
+                                                className={classnames(styles['action-btn'], styles['action-watch'], {
+                                                    [styles['action-watch-partial']]: isActive,
+                                                })}
                                                 title={t('CTX_PLAY')}
                                                 href={`#/metadetails/${entry.contentType || 'movie'}/${entry.imdbId}`}
                                             >
