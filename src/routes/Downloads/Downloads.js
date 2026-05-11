@@ -82,7 +82,7 @@ const DownloadsContent = () => {
                     <span className={styles['header-title']}>{t('DOWNLOADS')}</span>
                     {diskSpace !== null && (
                         <span className={styles['disk-space']}>
-                            {t('DOWNLOADS_DISK_AVAILABLE', { available: formatBytes(diskSpace.available), total: formatBytes(diskSpace.total) })}
+                            {t('DOWNLOADS_DISK_AVAILABLE', { available: formatBytes(diskSpace.available) })}
                         </span>
                     )}
                 </div>
@@ -147,11 +147,20 @@ const DownloadsContent = () => {
                                         )}
                                         {isReady && (
                                             <Button
+                                                className={classnames(styles['action-btn'], styles['action-watch'])}
+                                                title={t('CTX_PLAY')}
+                                                href={`#/metadetails/${entry.contentType || 'movie'}/${entry.imdbId}`}
+                                            >
+                                                <Icon className={styles['action-icon']} name={'play'} />
+                                            </Button>
+                                        )}
+                                        {isReady && (
+                                            <Button
                                                 className={classnames(styles['action-btn'], styles['action-delete'])}
                                                 title={t('CTX_DELETE_PRELOAD')}
                                                 onClick={() => onDelete(entry.infoHash)}
                                             >
-                                                <Icon className={styles['action-icon']} name={'ic_remove'} />
+                                                <Icon className={styles['action-icon']} name={'remove'} />
                                             </Button>
                                         )}
                                         {isFailed && (

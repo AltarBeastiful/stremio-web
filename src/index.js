@@ -47,7 +47,7 @@ i18n.addResources('en-US', 'translation', {
     'PRELOAD_DISK_LOW': 'Low disk space — less than 2 GB available. Preload may fail.',
     'DOWNLOADS': 'Downloads',
     'DOWNLOADS_EMPTY': 'No downloads yet. Start a preload from a stream.',
-    'DOWNLOADS_DISK_AVAILABLE': '{{available}} free of {{total}}',
+    'DOWNLOADS_DISK_AVAILABLE': '{{available}} free',
 });
 
 const appInfo = {

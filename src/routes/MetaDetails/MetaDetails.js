@@ -203,6 +203,16 @@ const MetaDetails = ({ urlParams, queryParams }) => {
                             streams={metaDetails.streams}
                             video={video}
                             type={streamPath.type}
+                            contentTitle={
+                                metaDetails.metaItem?.content?.type === 'Ready'
+                                    ? [
+                                        metaDetails.metaItem.content.content.name,
+                                        video?.season != null && video?.number != null
+                                            ? `S${video.season}E${video.number}`
+                                            : null
+                                    ].filter(Boolean).join(' ')
+                                    : ''
+                            }
                             onEpisodeSearch={handleEpisodeSearch}
                         />
                         :

@@ -12,7 +12,7 @@ const { useRouteFocused } = require('stremio-router');
 const StreamPlaceholder = require('./StreamPlaceholder');
 const styles = require('./styles');
 
-const Stream = ({ className, videoId, videoReleased, addonName, name, description, thumbnail, progress, deepLinks, infoHash, fileIdx, title, imdbId, ...props }) => {
+const Stream = ({ className, videoId, videoReleased, addonName, name, description, thumbnail, progress, deepLinks, infoHash, fileIdx, title, imdbId, contentTitle, contentType, ...props }) => {
     const profile = useProfile();
     const toast = useToast();
     const platform = usePlatform();
@@ -39,7 +39,8 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
                         infoHash: infoHash.toLowerCase(),
                         fileIdx: typeof fileIdx === 'number' ? fileIdx : 0,
                         imdbId: imdbId ?? '',
-                        title: title ?? name ?? addonName ?? '',
+                        title: [contentTitle, title ?? name ?? addonName].filter(Boolean).join(' — '),
+                        contentType: contentType ?? 'movie',
                     }
                 }
             });
@@ -67,7 +68,7 @@ const Stream = ({ className, videoId, videoReleased, addonName, name, descriptio
         } else {
             dispatchPreload();
         }
-    }, [infoHash, fileIdx, imdbId, title, name, addonName, profile.settings.streamingServerUrl]);
+    }, [infoHash, fileIdx, imdbId, title, name, addonName, contentTitle, contentType, profile.settings.streamingServerUrl]);
 
     const onCancelPreload = React.useCallback((event) => {
         event.preventDefault();

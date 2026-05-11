@@ -14,7 +14,7 @@ const { default: SeasonEpisodePicker } = require('../EpisodePicker');
 
 const ALL_ADDONS_KEY = 'ALL';
 
-const StreamsList = ({ className, video, type, onEpisodeSearch, ...props }) => {
+const StreamsList = ({ className, video, type, contentTitle, onEpisodeSearch, ...props }) => {
     const { t } = useTranslation();
     const core = useCore();
     const platform = usePlatform();
@@ -186,6 +186,8 @@ const StreamsList = ({ className, video, type, onEpisodeSearch, ...props }) => {
                                             fileIdx={stream.fileIdx}
                                             title={stream.name ?? stream.description}
                                             imdbId={video?.id}
+                                            contentTitle={contentTitle}
+                                            contentType={type}
                                             onClick={stream.onClick}
                                         />
                                     ))}
