@@ -36,6 +36,24 @@ const ServicesToaster = () => {
                     });
                     break;
                 }
+                case 'PreloadCompleted': {
+                    toast.show({
+                        type: 'success',
+                        title: 'Download ready',
+                        message: data.title || data.info_hash,
+                        timeout: 6000,
+                    });
+                    // Notify the native shell if available (stremio-linux-shell IPC)
+                    if (typeof window.webkit?.messageHandlers?.ipc?.postMessage === 'function') {
+                        try {
+                            window.webkit.messageHandlers.ipc.postMessage(JSON.stringify({
+                                type: 6,
+                                args: ['show-notification', { title: 'Download ready', body: data.title || '' }]
+                            }));
+                        } catch (_) { /* ignore if native IPC unavailable */ }
+                    }
+                    break;
+                }
             }
         };
         const onCoreError = (source, error) => {
